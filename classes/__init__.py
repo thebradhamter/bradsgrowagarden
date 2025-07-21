@@ -21,7 +21,7 @@ class Mutation:
 
 class Rune:
     runes = []
-    rarity_colors = {"common": None, "rare": C.blue, "epic": C.purple, "legendary": C.yellow, "cosmic": C.violet}
+    rarity_colors = {"common": C.light_gray, "rare": C.blue, "epic": C.purple, "legendary": C.yellow, "cosmic": C.violet}
     rarities = {"common": 60, "rare": 25, "epic": 10, "legendary": 4, "cosmic": 1}
     def __init__(self, name: str, icon: str, color: tuple[int, int, int], buy: int, type: str, hook: str, rarity_values: dict) -> any:
         self.name = name

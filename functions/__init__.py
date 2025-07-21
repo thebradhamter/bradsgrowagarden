@@ -116,10 +116,10 @@ def show_rune_shop(runes: list[Rune] = Rune.runes) -> None:
                 if is_developer:
                     amount = int(input(f"How many {colorify(rune.name + ' Rune Crate', rune.color)} ({colorify('¢' + str(rune.buy), C.orange)}) do you want to buy: ")) or 1
                     for _ in range(0, amount):
-                        pass
+                        add_rune(rune)
                 else:
                     if money >= rune.buy:
-                        pass
+                        add_rune(rune)
 
 def show_bank() -> None:
     global money, credits
@@ -270,7 +270,8 @@ def add_to_garden(plant_type: Plant, mutations: list[Mutation] = Mutation.mutati
     garden.append([new, new.get_sell_value(active_rune)])
 
 def add_rune(rune_type: Rune, rarity: str = None) -> None:
-    global unlocked_runes
+    global credits, unlocked_runes
+    credits -= rune_type.buy
     new = deepcopy(rune_type)
     if not rarity:
         rarity = new.generate_rarity()
