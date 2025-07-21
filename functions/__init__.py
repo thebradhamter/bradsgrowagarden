@@ -1,7 +1,7 @@
 from classes import *
 from colorify import C, colorify
 from random import random
-from os import system, path
+from os import system, path, mkdir, walk
 from pickle import load, dump
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from math import floor
@@ -163,8 +163,40 @@ def show_spell_book() -> None:
         if int(choice) in choices_listed:
             active_rune = choices_listed[int(choice)]
 
+def get_mods() -> list[str]:
+    if not path.exists("./mods"):
+        mkdir("./mods")
+    all_files = next(walk("./mods/"), (None, None, []))[2]
+    mods = []
+    for file in all_files:
+        if file.endswith(".py") or file.endswith(".python"):
+            mods.append(file)
+    return mods
+
+def load_mods(mods: list[str]):
+    blacklisted = [
+        "from bradsgrowagarden.functions",
+        "from functions",
+        "import bradsgrowagarden.functions",
+        "import functions"
+    ]
+    for mod in mods:
+        with open(path.join("./mods", mod), "r", encoding="utf-8") as f:
+            code = f.read()
+            lines = code.splitlines()
+            filtered_code = "\n".join(
+                line for line in lines
+                if not any(line.startswith(bl) for bl in blacklisted)
+            )
+            exec(filtered_code)
+
 def main_loop() -> None:
-    global money, credits, garden, is_developer
+    global money, credits, active_rune, garden, is_developer
+    if active_rune:
+        if active_rune[0].type == "custom" and active_rune[0].hook == "custom":
+            rune_return = active_rune[0].rarity_values[active_rune[1]]()
+            if rune_return:
+                exec(rune_return)
     clear()
     print(f"You have {colorify('$' + str(money), C.green)} and {colorify('¢' + str(credits), C.orange)}")
     print(f"Your garden is worth {colorify('$' + str(get_garden_value()), C.green)}")
@@ -201,7 +233,7 @@ def main_loop() -> None:
         choice = get_choice(["Yes", "No"])
         if choice == "1":
             return True
-    elif choice == "9":
+    elif choice == "9" and is_developer:
         choices = ["Set money", "Give money", "Set credits", "Give credits", "Mutate a plant", "Duplicate plant", "Give a rune"]
         choice = get_choice(choices)
         print("")
